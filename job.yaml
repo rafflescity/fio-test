@@ -1,0 +1,38 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: fio-test
+spec:
+  template:
+    spec:
+      terminationGracePeriodSeconds: 0
+      containers:
+      - name: test
+        image: daocloud.io/piraeus/fio
+        command:
+        - /bin/bash
+        - -x
+        - /tool/fio-test.sh
+        - local-path
+        - rw
+        volumeMounts:
+        - name: tool
+          mountPath: /tool
+          readOnly: true
+        - name: data
+          mountPath: /mnt/fio-test
+        - name: result
+          mountPath: /tmp/fio-test
+      volumes:
+      - name: tool
+        configMap:
+          name: fio-test
+      - name: data
+        persistentVolumeClaim:
+          claimName: fio-test
+      - name: result
+        hostPath:
+          path: /tmp/fio-test
+          type: DirectoryOrCreate
+      restartPolicy: Never
+  backoffLimit: 1
