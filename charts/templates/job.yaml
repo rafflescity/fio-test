@@ -1,38 +1,39 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: fio-test
+  name: fio-test-{{ .Values.pvc.storageClass }}
 spec:
+  backoffLimit: 1
+  parallelism: 1
   template:
     spec:
       terminationGracePeriodSeconds: 0
+      restartPolicy: Never
+      nodeSelector:
+        fio-test: "true"
       containers:
       - name: test
-        image: daocloud.io/piraeus/fio
+        image: {{ .Values.job.image }}
         command:
-        - /bin/bash
-        - -x
         - /tool/fio-test.sh
-        - local-path
-        - rw
+        - {{ .Values.pvc.storageClass }}
         volumeMounts:
         - name: tool
           mountPath: /tool
           readOnly: true
         - name: data
-          mountPath: /mnt/fio-test
+          mountPath: /mnt/fio-test/
         - name: result
-          mountPath: /tmp/fio-test
+          mountPath: /tmp/fio-test/
       volumes:
       - name: tool
         configMap:
           name: fio-test
+          defaultMode: 0755
       - name: data
         persistentVolumeClaim:
-          claimName: fio-test
+          claimName: fio-test-{{ .Values.pvc.storageClass }}
       - name: result
         hostPath:
           path: /tmp/fio-test
           type: DirectoryOrCreate
-      restartPolicy: Never
-  backoffLimit: 1

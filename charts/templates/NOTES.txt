@@ -1,0 +1,13 @@
+FIO Test Tool
+
+Upload fio-test.sh script by:
+    kubectl create configmap fio-test --from-file=fio-test.sh
+
+To run the test on a node, label the node with: 
+    kubectl label node <Node Name> fio-test=true
+
+Specify the storageClass by:
+    --set pvc.storageClass=<Storage Class Name>
+
+The result with be kept on that node in the directory: 
+    /tmp/fio-test/<Storage Class Name>/

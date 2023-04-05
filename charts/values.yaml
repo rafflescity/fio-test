@@ -1,0 +1,6 @@
+job:
+  image: daocloud.io/piraeus/fio:latest
+
+pvc:
+  size: 20Gi
+  storageClass:
